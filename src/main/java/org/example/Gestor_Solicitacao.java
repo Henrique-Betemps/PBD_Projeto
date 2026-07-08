@@ -117,4 +117,51 @@ public class Gestor_Solicitacao {
 
         return modelo;
     }
+
+    // 4. INSERÇÃO DE FAQ (Uso restrito para Administradores)
+    public void cadastrarFaq(String titulo, String conteudo) {
+        // A data de publicação e as visualizações são preenchidas automaticamente pelo banco (DEFAULT)
+        String sql = "INSERT INTO FAQ_Artigo (Titulo, Conteudo_Texto) VALUES (?, ?)";
+
+        try (java.sql.Connection conn = ConexaoBD.conectar();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, titulo);
+            stmt.setString(2, conteudo);
+            stmt.executeUpdate();
+
+            System.out.println("Artigo de FAQ cadastrado com sucesso no banco!");
+
+        } catch (java.sql.SQLException e) {
+            System.err.println("Erro ao inserir FAQ: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // 5. CONSULTA DE FAQ (Para preencher a tabela visual)
+    public javax.swing.table.DefaultTableModel listarFaqsParaTabela() {
+        String[] colunas = {"ID", "Título", "Data de Publicação", "Visualizações"};
+        javax.swing.table.DefaultTableModel modelo = new javax.swing.table.DefaultTableModel(colunas, 0);
+
+        String sql = "SELECT ID_Artigo, Titulo, Data_Publicacao, Visualizacoes FROM FAQ_Artigo ORDER BY ID_Artigo DESC";
+
+        try (java.sql.Connection conn = ConexaoBD.conectar();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql);
+             java.sql.ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Object[] linha = {
+                        rs.getInt("ID_Artigo"),
+                        rs.getString("Titulo"),
+                        rs.getDate("Data_Publicacao"),
+                        rs.getInt("Visualizacoes")
+                };
+                modelo.addRow(linha);
+            }
+        } catch (java.sql.SQLException e) {
+            System.err.println("Erro ao listar FAQs: " + e.getMessage());
+        }
+
+        return modelo;
+    }
 }

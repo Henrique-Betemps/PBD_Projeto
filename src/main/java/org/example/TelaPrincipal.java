@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.Font;
 
 public class TelaPrincipal {
     public static void main(String[] args) {
@@ -129,6 +131,83 @@ public class TelaPrincipal {
         painelConsultar.add(btnRecarregar, BorderLayout.NORTH);
         painelConsultar.add(scrollPane, BorderLayout.CENTER);
         abas.addTab("Consultar Registros", painelConsultar);
+
+        // ==========================================
+        // ABA 4: GERENCIAR FAQ (Área do Administrador)
+        // ==========================================
+        JPanel painelFaq = new JPanel(null);
+
+        JLabel lblAviso = new JLabel("Área Restrita: Cadastro de Artigos para Autoajuda");
+        lblAviso.setBounds(20, 10, 400, 25);
+        lblAviso.setFont(new Font("Arial", Font.BOLD, 12));
+        lblAviso.setForeground(Color.RED);
+
+        JLabel lblTituloFaq = new JLabel("Título do Artigo:");
+        lblTituloFaq.setBounds(20, 50, 150, 25);
+        JTextField txtTituloFaq = new JTextField();
+        txtTituloFaq.setBounds(150, 50, 350, 25);
+
+        JLabel lblConteudoFaq = new JLabel("Conteúdo:");
+        lblConteudoFaq.setBounds(20, 90, 150, 25);
+
+        // Usamos JTextArea porque o conteúdo pode ter várias linhas
+        JTextArea txtConteudoFaq = new JTextArea();
+        txtConteudoFaq.setLineWrap(true);
+        txtConteudoFaq.setWrapStyleWord(true);
+        JScrollPane scrollConteudo = new JScrollPane(txtConteudoFaq);
+        scrollConteudo.setBounds(150, 90, 350, 150);
+
+        JButton btnSalvarFaq = new JButton("Publicar Artigo");
+        btnSalvarFaq.setBounds(150, 260, 150, 35);
+
+        // Ação do botão de salvar FAQ
+        btnSalvarFaq.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String titulo = txtTituloFaq.getText();
+                String conteudo = txtConteudoFaq.getText();
+
+                if (titulo.isEmpty() || conteudo.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Preencha todos os campos do artigo!", "Aviso", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    gestor.cadastrarFaq(titulo, conteudo);
+                    JOptionPane.showMessageDialog(frame, "Artigo do FAQ publicado com sucesso!");
+
+                    // Limpa os campos
+                    txtTituloFaq.setText("");
+                    txtConteudoFaq.setText("");
+                }
+            }
+        });
+
+        painelFaq.add(lblAviso);
+        painelFaq.add(lblTituloFaq);
+        painelFaq.add(txtTituloFaq);
+        painelFaq.add(lblConteudoFaq);
+        painelFaq.add(scrollConteudo);
+        painelFaq.add(btnSalvarFaq);
+        abas.addTab("Gerenciar FAQ", painelFaq);
+
+        // ==========================================
+        // ABA 5: VER FAQS (Área do Aluno)
+        // ==========================================
+        JPanel painelVerFaq = new JPanel(new BorderLayout());
+
+        JButton btnRecarregarFaq = new JButton("Atualizar Lista de Ajuda");
+        JTable tabelaFaq = new JTable();
+        JScrollPane scrollFaq = new JScrollPane(tabelaFaq);
+
+        // Ação do botão para buscar os FAQs
+        btnRecarregarFaq.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tabelaFaq.setModel(gestor.listarFaqsParaTabela());
+            }
+        });
+
+        painelVerFaq.add(btnRecarregarFaq, BorderLayout.NORTH);
+        painelVerFaq.add(scrollFaq, BorderLayout.CENTER);
+        abas.addTab("Base de Conhecimento (FAQ)", painelVerFaq);
 
         // Adiciona as abas na janela e exibe
         frame.add(abas);
