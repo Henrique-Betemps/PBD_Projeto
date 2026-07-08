@@ -164,4 +164,33 @@ public class Gestor_Solicitacao {
 
         return modelo;
     }
+
+    // 6. INCREMENTAR VISUALIZAÇÃO DO FAQ
+    public void registrarVisualizacaoFaq(int idArtigo) {
+        String sql = "UPDATE FAQ_Artigo SET Visualizacoes = Visualizacoes + 1 WHERE ID_Artigo = ?";
+        try (java.sql.Connection conn = ConexaoBD.conectar();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idArtigo);
+            stmt.executeUpdate();
+        } catch (java.sql.SQLException e) {
+            System.err.println("Erro ao contabilizar visualização: " + e.getMessage());
+        }
+    }
+
+    // 7. BUSCAR CONTEÚDO COMPLETO PARA LEITURA
+    public String buscarConteudoFaq(int idArtigo) {
+        String sql = "SELECT Conteudo_Texto FROM FAQ_Artigo WHERE ID_Artigo = ?";
+        try (java.sql.Connection conn = ConexaoBD.conectar();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idArtigo);
+            try (java.sql.ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("Conteudo_Texto");
+                }
+            }
+        } catch (java.sql.SQLException e) {
+            System.err.println("Erro ao buscar conteúdo do FAQ: " + e.getMessage());
+        }
+        return "Conteúdo indisponível.";
+    }
 }

@@ -195,6 +195,9 @@ public class TelaPrincipal {
 
         JButton btnRecarregarFaq = new JButton("Atualizar Lista de Ajuda");
         JTable tabelaFaq = new JTable();
+
+        // Impede que o usuário edite o texto direto na célula da tabela
+        tabelaFaq.setDefaultEditor(Object.class, null);
         JScrollPane scrollFaq = new JScrollPane(tabelaFaq);
 
         // Ação do botão para buscar os FAQs
@@ -202,6 +205,43 @@ public class TelaPrincipal {
             @Override
             public void actionPerformed(ActionEvent e) {
                 tabelaFaq.setModel(gestor.listarFaqsParaTabela());
+            }
+        });
+
+        // EVENTO NOVO: Escuta os cliques do mouse na tabela
+        tabelaFaq.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                // Verifica se foi um duplo clique
+                if (e.getClickCount() == 2) {
+                    int linhaSelecionada = tabelaFaq.getSelectedRow();
+
+                    if (linhaSelecionada != -1) {
+                        // Pega o ID e o Título da linha que foi clicada
+                        int idArtigo = (int) tabelaFaq.getValueAt(linhaSelecionada, 0);
+                        String titulo = (String) tabelaFaq.getValueAt(linhaSelecionada, 1);
+
+                        // 1. Registra +1 visualização silenciosamente no banco
+                        gestor.registrarVisualizacaoFaq(idArtigo);
+
+                        // 2. Busca o texto completo no banco
+                        String conteudo = gestor.buscarConteudoFaq(idArtigo);
+
+                        // 3. Monta uma caixa de texto amigável para leitura
+                        JTextArea txtLeitura = new JTextArea(conteudo);
+                        txtLeitura.setLineWrap(true);
+                        txtLeitura.setWrapStyleWord(true);
+                        txtLeitura.setEditable(false);
+                        JScrollPane scrollLeitura = new JScrollPane(txtLeitura);
+                        scrollLeitura.setPreferredSize(new Dimension(400, 250));
+
+                        // 4. Mostra o pop-up com o texto para o aluno ler
+                        JOptionPane.showMessageDialog(frame, scrollLeitura, "Lendo: " + titulo, JOptionPane.INFORMATION_MESSAGE);
+
+                        // 5. Atualiza a tabela por trás para mostrar o novo número de visualizações
+                        tabelaFaq.setModel(gestor.listarFaqsParaTabela());
+                    }
+                }
             }
         });
 
